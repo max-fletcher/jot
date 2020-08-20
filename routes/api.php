@@ -14,8 +14,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+//Grouping up all other routes inside auth api route to implement auth.
+Route::middleware('auth:api')->group(function () {
+
+    Route::get('/contacts', 'ContactsController@index');
+    Route::post('/contacts', 'ContactsController@store');
+    Route::get('/contacts/{contact}', 'ContactsController@show');
+    Route::patch('/contacts/{contact}', 'ContactsController@update');
+    Route::delete('/contacts/{contact}', 'ContactsController@destroy');
+
+    Route::get('/birthdays', 'BirthdaysController@index');    
+
+    Route::post('/search', 'SearchController@index');    
+    
 });
 
-Route::post('/contacts', 'ContactsController@store');
