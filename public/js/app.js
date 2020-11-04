@@ -2017,14 +2017,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     SearchBar: _SearchBar__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
   data: function data() {
-    return {};
+    return {
+      // title that comes from router file as meta data
+      title: ''
+    };
   },
   methods: {},
   // needs to be at created not mounted, since it has to be fired before any requests are sent
   created: function created() {
     var _this = this;
 
-    // appending api_token so it becomes available to every component that is loaded in the App.vue file
+    //Set title variable to this page's title(from meta data of current URL) which will on change be watched by watcher below 
+    this.title = this.$route.meta.title; // appending api_token so it becomes available to every component that is loaded in the App.vue file
+
     window.axios.interceptors.request.use(function (config) {
       // if the request type sent is of type "get", append the api_token with the URL
       if (config.method === 'get') {
@@ -2039,6 +2044,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
       return config;
     });
+  },
+  watch: {
+    // watcher function applied on the route itself. It grabs the "to" and "from" routes(the routes contains meta data as well).
+    $route: function $route(to, from) {
+      // title variable(in data) is set equal to the title(from router.js) carried by meta data from "to" route
+      this.title = to.meta.title;
+    },
+    title: function title() {
+      // if title changes, set the document.title equal to the title variable(which was set to title from route meta data)
+      document.title = this.title + ' | Jot - The SPA App';
+    }
   }
 });
 
@@ -2214,127 +2230,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   mounted: function mounted() {
     console.log('Component mounted.');
@@ -2381,7 +2276,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "InputField",
   mounted: function mounted() {},
-  props: [// data prop is for edit page only
+  props: [// 'data' prop is for edit page only
   'name', 'label', 'placeholder', 'errors', 'data'],
   data: function data() {
     return {
@@ -2390,7 +2285,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     // accept each field name(name, email, birthday etc.) as parameter
-    // You can use "this.name" as parameter instead of "field". That way, the update:field and errorClassObject methods            
+    // You can use "this.name" as parameter instead of "field". That way, the update:field and errorClassObject methods
     // inside the template section will not require a parameter(which is currently "name").
     updateField: function updateField(field) {
       // clear errors. It is a separate function defined below. Field name is sent as parameter so that that field is
@@ -2401,7 +2296,7 @@ __webpack_require__.r(__webpack_exports__);
       this.$emit('update:field', this.value);
     },
     // accept each field name(name, email, birthday etc.) as parameter
-    // You can use "this.name" as parameter instead of "field". That way, the update:field and errorClassObject methods            
+    // You can use "this.name" as parameter instead of "field". That way, the update:field and errorClassObject methods
     // inside the template section will not require a parameter(which is currently "name").
     errorMessage: function errorMessage(field) {
       // if errors exist && if errors for "this" specific field exists && if errors have a string length greater
@@ -2411,7 +2306,7 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     // accept each field name(name, email, birthday etc.) as parameter
-    // You can use "this.name" as parameter instead of "field". That way, the update:field and errorClassObject methods            
+    // You can use "this.name" as parameter instead of "field". That way, the update:field and errorClassObject methods
     // inside the template section will not require a parameter(which is currently "name").
     clearErrors: function clearErrors(field) {
       // if errors exist && if errors for "this" specific field exists && if errors have a string length greater
@@ -2422,7 +2317,7 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     // accept each field name(name, email, birthday etc.) as parameter
-    // You can use "this.name" as parameter instead of "field". That way, the update:field and errorClassObject methods            
+    // You can use "this.name" as parameter instead of "field". That way, the update:field and errorClassObject methods
     // inside the template section will not require a parameter(which is currently "name").
     errorClassObject: function errorClassObject(field) {
       // apply 'error-field' classes if there are errors present for a particular field
@@ -2488,6 +2383,26 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2498,7 +2413,8 @@ __webpack_require__.r(__webpack_exports__);
     return {
       searchTerm: '',
       results: [],
-      focus: false
+      focus: false,
+      searchloading: false
     };
   },
   components: {
@@ -2521,8 +2437,21 @@ __webpack_require__.r(__webpack_exports__);
       }).then(function (response) {
         _this.results = response.data.data;
         console.log(_this.results);
+        _this.searchloading = false;
       })["catch"](function (error) {});
     }, 300)
+  },
+  watch: {
+    searchTerm: function searchTerm(val) {
+      this.results = [];
+      this.search();
+
+      if (this.searchTerm.length < 3) {
+        this.results = [];
+      }
+
+      console.log(val);
+    }
   }
 });
 
@@ -39453,7 +39382,9 @@ var render = function() {
                 "h-16 px-6 border-b border-gray-400 flex flex-row items-center justify-between"
             },
             [
-              _c("div", [_vm._v("\n             Contacts\n          ")]),
+              _c("div", { staticClass: "font-bold text-sm" }, [
+                _vm._v("\n             " + _vm._s(_vm.title) + "\n          ")
+              ]),
               _vm._v(" "),
               _c(
                 "div",
@@ -40220,186 +40151,6 @@ var staticRenderFns = [
         _c("h1", [_vm._v(" Welcome To Jot !! ")]),
         _vm._v(" "),
         _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
-      ]),
-      _vm._v(" "),
-      _c("div", [
-        _c("h1", [_vm._v(" Welcome To Jot !! ")]),
-        _vm._v(" "),
-        _c("p", [_vm._v(" This is an Example Component ")])
       ])
     ])
   }
@@ -40551,10 +40302,18 @@ var render = function() {
               }
               _vm.searchTerm = $event.target.value
             },
-            _vm.search
+            function($event) {
+              _vm.searchloading = true
+            }
           ],
           focus: function($event) {
             _vm.focus = true
+            _vm.results = []
+            _vm.searchloading = true
+            _vm.search()
+          },
+          blur: function($event) {
+            _vm.searchloading == false
           }
         }
       }),
@@ -40567,7 +40326,70 @@ var render = function() {
                 "absolute bg-blue-900 text-white rounded-lg p-4 w-96 right-0 mr-6 mt-2 shadow z-20"
             },
             [
-              _vm.results == 0
+              _vm.searchTerm.length < 3 && _vm.results == 0
+                ? _c("div", [_vm._v(" Please input at least 3 characters ")])
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.searchloading == true && _vm.searchTerm.length >= 3
+                ? _c("div", [
+                    _c("p", { staticClass: "flex justify-center" }, [
+                      _vm._v(" Loading... ")
+                    ]),
+                    _vm._v(" "),
+                    _c(
+                      "svg",
+                      {
+                        staticStyle: {
+                          margin: "auto",
+                          background: "rgb(42, 67, 101)",
+                          display: "block",
+                          "shape-rendering": "auto"
+                        },
+                        attrs: {
+                          xmlns: "http://www.w3.org/2000/svg",
+                          "xmlns:xlink": "http://www.w3.org/1999/xlink",
+                          width: "91px",
+                          height: "91px",
+                          viewBox: "0 0 100 100",
+                          preserveAspectRatio: "xMidYMid"
+                        }
+                      },
+                      [
+                        _c(
+                          "circle",
+                          {
+                            attrs: {
+                              cx: "50",
+                              cy: "50",
+                              r: "23",
+                              "stroke-width": "8",
+                              stroke: "#a0b4ef",
+                              "stroke-dasharray":
+                                "36.12831551628262 36.12831551628262",
+                              fill: "none",
+                              "stroke-linecap": "round"
+                            }
+                          },
+                          [
+                            _c("animateTransform", {
+                              attrs: {
+                                attributeName: "transform",
+                                type: "rotate",
+                                repeatCount: "indefinite",
+                                dur: "1.0416666666666665s",
+                                keyTimes: "0;1",
+                                values: "0 50 50;360 50 50"
+                              }
+                            })
+                          ],
+                          1
+                        )
+                      ]
+                    )
+                  ])
+                : _vm._e(),
+              _vm._v(" "),
+              _vm.results == 0 && _vm.searchloading == false
                 ? _c("div", [
                     _vm._v(
                       " No results found for '" + _vm._s(_vm.searchTerm) + "' "
@@ -40578,29 +40400,44 @@ var render = function() {
               _vm._l(_vm.results, function(result) {
                 return _c(
                   "div",
+                  {
+                    key: result.id,
+                    on: {
+                      click: function($event) {
+                        _vm.focus = false
+                      }
+                    }
+                  },
                   [
-                    _c("router-link", { attrs: { to: result.links.self } }, [
-                      _c(
-                        "div",
-                        { staticClass: "flex items-center" },
-                        [
-                          _c("UserCircle", {
-                            attrs: { name: result.data.name }
-                          }),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "pl-3" }, [
-                            _c("p", [
-                              _vm._v(" " + _vm._s(result.data.name) + " ")
-                            ]),
+                    _c(
+                      "router-link",
+                      {
+                        staticClass: "block py-2",
+                        attrs: { to: result.links.self }
+                      },
+                      [
+                        _c(
+                          "div",
+                          { staticClass: "flex items-center" },
+                          [
+                            _c("UserCircle", {
+                              attrs: { name: result.data.name }
+                            }),
                             _vm._v(" "),
-                            _c("p", [
-                              _vm._v(" " + _vm._s(result.data.company) + " ")
+                            _c("div", { staticClass: "pl-3" }, [
+                              _c("p", [
+                                _vm._v(" " + _vm._s(result.data.name) + " ")
+                              ]),
+                              _vm._v(" "),
+                              _c("p", [
+                                _vm._v(" " + _vm._s(result.data.company) + " ")
+                              ])
                             ])
-                          ])
-                        ],
-                        1
-                      )
-                    ])
+                          ],
+                          1
+                        )
+                      ]
+                    )
                   ],
                   1
                 )
@@ -57601,13 +57438,13 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vue_router__WEBPACK_IMPORTED_MODU
     path: '/contacts/create',
     component: _views_ContactsCreate__WEBPACK_IMPORTED_MODULE_3__["default"],
     meta: {
-      title: 'Create Contacts'
+      title: 'Add New Contacts'
     }
   }, {
     path: '/contacts/:id',
     component: _views_ContactsShow__WEBPACK_IMPORTED_MODULE_4__["default"],
     meta: {
-      title: 'Show Contacts'
+      title: 'Details For Contacts'
     }
   }, {
     path: '/contacts/:id/edit',
@@ -57619,7 +57456,7 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vue_router__WEBPACK_IMPORTED_MODU
     path: '/birthdays',
     component: _views_BirthdaysIndex__WEBPACK_IMPORTED_MODULE_7__["default"],
     meta: {
-      title: 'All Birthdays'
+      title: 'This Month\'s Birthdays'
     }
   }, {
     path: '/logout',
@@ -57994,8 +57831,8 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! c:\xampp\htdocs\jot\resources\js\app.js */"./resources/js/app.js");
-module.exports = __webpack_require__(/*! c:\xampp\htdocs\jot\resources\sass\app.scss */"./resources/sass/app.scss");
+__webpack_require__(/*! C:\xampp\htdocs\jot\resources\js\app.js */"./resources/js/app.js");
+module.exports = __webpack_require__(/*! C:\xampp\htdocs\jot\resources\sass\app.scss */"./resources/sass/app.scss");
 
 
 /***/ })

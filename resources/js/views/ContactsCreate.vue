@@ -2,8 +2,8 @@
     <div>
         <!-- need to use the @submit.prevent directive to prevent page reload otherwise it wouldn't be an SPA -->
         <form @submit.prevent="submitForm">
-        <!-- sending props data into the input fields so that each will give us field with different labels & placeholders.
-        @update:field -->
+        <!-- sending props data into the input fields so that each will give us fields with different labels & placeholders.
+        @update:field refers to a function inside InputField component and will fire if triggered -->
             <InputField name="name" label="Contact Name" :errors="errors"
              placeholder="Enter Contact Name" @update:field="form.name = $event" />
             <InputField name="email" label="E-mail" :errors="errors"
@@ -15,7 +15,7 @@
              <!-- submit and cancel buttons -->
             <div class="flex justify-end">
                 <button class="bg-white py-2 px-4 rounded text-red-700 border mr-5 hover:border-red-700"> Cancel </button>
-                <button class="bg-blue-500 py-2 px-4 rounded text-white hover:bg-blue-400"> Submit </button>                        
+                <button class="bg-blue-500 py-2 px-4 rounded text-white hover:bg-blue-400"> Submit </button>
             </div>
         </form>
     </div>
@@ -29,7 +29,7 @@
     export default {
         name: "ContactsCreate",
         mounted() {
-            
+
         },
 
             components: {

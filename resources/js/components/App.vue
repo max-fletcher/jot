@@ -40,8 +40,8 @@
       <!-- Navbar and main content -->
       <div class="flex flex-col flex-1 h-screen overflow-y-hidden">
           <div class="h-16 px-6 border-b border-gray-400 flex flex-row items-center justify-between">
-            <div>
-               Contacts
+            <div class="font-bold text-sm">
+               {{ title }}
             </div>
             <div class="flex items-center">
               <SearchBar />
@@ -79,7 +79,8 @@
 
     data(){
       return{
-
+        // title that comes from router file as meta data
+        title: '',
       }
     },
     methods: {
@@ -88,6 +89,9 @@
 
     // needs to be at created not mounted, since it has to be fired before any requests are sent
     created() {      
+
+      //Set title variable to this page's title(from meta data of current URL) which will on change be watched by watcher below 
+        this.title = this.$route.meta.title;
 
         // appending api_token so it becomes available to every component that is loaded in the App.vue file
         window.axios.interceptors.request.use(
@@ -110,6 +114,19 @@
           }
         )
     },
+
+    watch: {
+      // watcher function applied on the route itself. It grabs the "to" and "from" routes(the routes contains meta data as well).
+      $route: function(to, from){
+        // title variable(in data) is set equal to the title(from router.js) carried by meta data from "to" route
+        this.title = to.meta.title;
+      },
+
+      title: function(){
+        // if title changes, set the document.title equal to the title variable(which was set to title from route meta data)
+        document.title = this.title + ' | Jot - The SPA App';        
+      }
+    }
   }
 </script>
 

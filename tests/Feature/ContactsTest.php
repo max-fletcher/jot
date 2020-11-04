@@ -54,6 +54,7 @@ class ContactsTest extends TestCase
 
         $response->assertRedirect('/login');
 
+        // test to see if the not logged in user can fetch data from database
         $this->assertCount(0, Contact::all());
     }
 

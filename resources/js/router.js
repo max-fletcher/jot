@@ -33,11 +33,11 @@ export default new VueRouter({
         {
             path: '/contacts/create',
             component: ContactsCreate,
-            meta: { title: 'Create Contacts' }
+            meta: { title: 'Add New Contacts' }
         }, {
             path: '/contacts/:id',
             component: ContactsShow,
-            meta: { title: 'Show Contacts' }
+            meta: { title: 'Details For Contacts' }
         }, {
             path: '/contacts/:id/edit',
             component: ContactsEdit,
@@ -45,7 +45,7 @@ export default new VueRouter({
         }, {
             path: '/birthdays',
             component: BirthdaysIndex,
-            meta: { title: 'All Birthdays' }
+            meta: { title: 'This Month\'s Birthdays' }
         }, {
             path: '/logout',
             component: Logout,

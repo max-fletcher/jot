@@ -16,8 +16,10 @@ class SearchController extends Controller
            'searchTerm' => 'required',
         ]);
         
-        // Search and return
-        $contact = Contact::search($data['searchTerm'])->get();
+        // Search for contacts whose user_id matches the authenticated user(i.e this user submitted these contacts) and return
+        $contact = Contact::search($data['searchTerm'])
+        ->where('user_id', request()->user()->id)
+        ->get();
         
         // Send $contact as a resource when an API calls it
         return ContactResource::collection($contact);
